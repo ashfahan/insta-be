@@ -11,7 +11,7 @@ node_modules/
 # Built files
 build/
 out/
-*.js
+
 
 # Environment variables
 .env
