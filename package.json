@@ -6,7 +6,7 @@
   "author": "Ali Raza",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "prisma": "npx prisma"
