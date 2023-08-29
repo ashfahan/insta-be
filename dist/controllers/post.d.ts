@@ -1,0 +1,13 @@
+import { NextFunction, Request, Response } from "express";
+import { CustomRequest } from "../middleware/verifyToken";
+export declare const createPost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getFeedForUser: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getPostById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const likePost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const unlikePost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const addCommentToPost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const explorePosts: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const deletePost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const deleteComment: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const updatePost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const editCommentToPost: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;

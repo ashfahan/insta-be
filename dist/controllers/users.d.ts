@@ -1,0 +1,14 @@
+import { NextFunction, Response } from "express";
+import { CustomRequest } from "../middleware/verifyToken";
+export declare const saveFCMToken: (userId: number, token: string) => Promise<void>;
+export declare const createUser: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const authenticateUser: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUserProfile: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const logoutUser: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUserProfileByToken: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const updateUserProfile: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const initiatePasswordReset: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const resetPassword: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUserLikes: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUserComments: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUserPosts: (req: CustomRequest, res: Response, next: NextFunction) => Promise<void>;
