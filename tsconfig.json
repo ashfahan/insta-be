@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // Target ECMAScript version
+    "module": "CommonJS", // Use CommonJS modules (Node.js)
+    "outDir": "./dist", // Output directory for compiled files
+    "rootDir": "./src", // Source directory
+    "strict": true, // Enable strict type checking
+    "esModuleInterop": true, // Enable CommonJS/ES6 interop
+    "resolveJsonModule": true, // Allow importing JSON files as modules
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false, // Set to true if you want to generate .d.ts files
+    "skipLibCheck": true, // Skip checking of all declaration files
+    "sourceMap": true // Generate source maps for debugging
+  },
+  "include": ["src/**/*.ts"], // Specify files to include in compilation
+  "exclude": ["node_modules"] // Specify folders/files to exclude from compilation
+}
