@@ -9,7 +9,6 @@ yarn-error.log*
 node_modules/
 
 # Built files
-dist/
 build/
 out/
 *.js
