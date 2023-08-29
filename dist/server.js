@@ -10,10 +10,22 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const routes_1 = require("./routes");
 const errorHandling_1 = require("./controllers/errorHandling");
+const socket_io_1 = require("socket.io");
+const http_1 = require("http");
+const socket_1 = require("./socket");
 const app = (0, express_1.default)();
 const PORT = Number(process.env.PORT);
 const BASE_API_PATH = process.env.BASE_API_PATH;
 const MAX_REQUEST_SIZE = process.env.MAX_REQUEST_SIZE;
+const server = (0, http_1.createServer)(app);
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+    transports: ["websocket"],
+});
 app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
@@ -33,5 +45,6 @@ app.use(`${BASE_API_PATH}/file`, routes_1.upload);
 app.use(`${BASE_API_PATH}/message`, routes_1.messages);
 app.use(errorHandling_1.notFoundError);
 app.use(errorHandling_1.serverError);
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+(0, socket_1.setupSocketCalls)(io);
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 //# sourceMappingURL=server.js.map

@@ -15,10 +15,24 @@ import {
 } from "./routes";
 import { notFoundError, serverError } from "./controllers/errorHandling";
 
+import { Server } from "socket.io";
+import { createServer } from "http";
+import { setupSocketCalls } from "./socket";
+
 const app = express();
 const PORT = Number(process.env.PORT);
 const BASE_API_PATH = process.env.BASE_API_PATH;
 const MAX_REQUEST_SIZE = process.env.MAX_REQUEST_SIZE;
+
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket"],
+});
 
 app.use(cors());
 app.use(morgan("dev"));
@@ -47,4 +61,6 @@ app.use(`${BASE_API_PATH}/message`, messages);
 app.use(notFoundError);
 app.use(serverError);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+setupSocketCalls(io);
+
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

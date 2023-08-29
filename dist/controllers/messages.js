@@ -26,9 +26,94 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchInChat = exports.getUserConversations = exports.deleteConversation = exports.getMessagesForConversation = void 0;
+exports.searchInChat = exports.getUserConversations = exports.deleteConversation = exports.getMessagesForConversation = exports.handleNewMessage = exports.createMessage = exports.findExistingConversation = exports.createConversation = void 0;
 const prisma_1 = __importStar(require("../prisma"));
 const http_errors_1 = __importDefault(require("http-errors"));
+const socket_1 = require("./../socket");
+async function createConversation(senderId, receiverId) {
+    try {
+        const newConversation = await prisma_1.default.conversation.create({
+            data: {
+                sender: {
+                    connect: { id: senderId },
+                },
+                receiver: {
+                    connect: { id: receiverId },
+                },
+            },
+        });
+        return newConversation;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+exports.createConversation = createConversation;
+async function findExistingConversation(senderId, receiverId) {
+    try {
+        const conversation = await prisma_1.default.conversation.findFirst({
+            where: {
+                AND: [
+                    {
+                        OR: [
+                            { senderId: senderId, receiverId: receiverId },
+                            { senderId: receiverId, receiverId: senderId },
+                        ],
+                    },
+                ],
+            },
+        });
+        return conversation;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+exports.findExistingConversation = findExistingConversation;
+async function createMessage(conversationId, messageData) {
+    try {
+        const newMessage = await prisma_1.default.message.create({
+            data: {
+                conversation: { connect: { id: conversationId } },
+                messageSender: { connect: { id: messageData.senderId } },
+                message: messageData?.message?.toString() || "",
+                messageType: messageData.messageType || "text",
+                mediaUrl: messageData.mediaUrl || null,
+            },
+        });
+        console.log({ newMessage });
+        return newMessage;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+exports.createMessage = createMessage;
+const getReceiverSocket = (io, receiverId) => socket_1.userSockets.get(receiverId) || null;
+async function handleNewMessage(io, socket, messageData) {
+    try {
+        console.log("Received a message:");
+        const existingConversation = await findExistingConversation(messageData.senderId, messageData.receiverId);
+        let newMessage = {};
+        if (!existingConversation) {
+            const newConversation = await createConversation(messageData.senderId, messageData.receiverId);
+            newMessage = await createMessage(newConversation.id, messageData);
+        }
+        else {
+            newMessage = await createMessage(existingConversation.id, messageData);
+        }
+        const receiverSocket = getReceiverSocket(io, messageData.receiverId);
+        if (receiverSocket)
+            receiverSocket.emit("messageReceived", newMessage);
+        const senderSocket = getReceiverSocket(io, messageData.senderId);
+        if (senderSocket)
+            senderSocket.emit("messageSent", newMessage);
+    }
+    catch (error) {
+        console.error("Error handling message:", error);
+    }
+}
+exports.handleNewMessage = handleNewMessage;
 const getMessagesForConversation = async (req, res, next) => {
     try {
         const { receiverId } = req.params;
@@ -120,10 +205,7 @@ const searchInChat = async (req, res, next) => {
         const { searchTerm } = req.query;
         const userConversations = await prisma_1.default.conversation.findMany({
             where: {
-                OR: [
-                    { senderId },
-                    { receiverId: senderId },
-                ],
+                OR: [{ senderId }, { receiverId: senderId }],
             },
             include: {
                 messages: {
@@ -134,14 +216,14 @@ const searchInChat = async (req, res, next) => {
                         ],
                     },
                     orderBy: {
-                        createdAt: 'asc',
+                        createdAt: "asc",
                     },
                 },
                 sender: true,
                 receiver: true,
             },
         });
-        const matchingMessages = userConversations.flatMap(conversation => conversation.messages.filter(message => message.message.includes(searchTerm) ||
+        const matchingMessages = userConversations.flatMap((conversation) => conversation.messages.filter((message) => message.message.includes(searchTerm) ||
             (message.mediaUrl && message.mediaUrl.includes(searchTerm))));
         res.json({ messages: matchingMessages });
     }
